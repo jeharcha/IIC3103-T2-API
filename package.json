@@ -1,0 +1,27 @@
+{
+  "name": "MyProject",
+  "version": "0.0.1",
+  "description": "Awesome project developed with TypeORM.",
+  "devDependencies": {
+    "@types/koa-logger": "^3.1.1",
+    "@types/koa__router": "^8.0.4",
+    "@types/node": "^8.0.29",
+    "ts-node": "3.3.0"
+  },
+  "dependencies": {
+    "@koa/router": "^10.0.0",
+    "koa": "^2.13.1",
+    "koa-body": "^4.2.0",
+    "koa-logger": "^3.2.1",
+    "mysql": "^2.14.1",
+    "nodemon": "^2.0.7",
+    "reflect-metadata": "^0.1.10",
+    "typeorm": "0.2.32",
+    "typescript": "^4.2.4"
+  },
+  "scripts": {
+    "start": "ts-node build/index.js",
+    "dev": "nodemon src/index.ts",
+    "build": "tsc"
+  }
+}
