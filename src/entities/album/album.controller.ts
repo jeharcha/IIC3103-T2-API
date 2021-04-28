@@ -15,6 +15,7 @@ albumRouter.get('/', async (ctx: RouterContext) => {
   // Do something
   // POST methods
   console.log('----------------');
+
   console.log('my_url', ctx.URL);
   console.log('My head', ctx.header);
   console.log('My_Body', ctx.body);
