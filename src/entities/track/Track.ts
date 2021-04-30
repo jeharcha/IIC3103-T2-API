@@ -4,15 +4,17 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
-  OneToMany
+  OneToMany,
+  OneToOne
 } from 'typeorm';
 import { Artist } from '../artist/Artist';
 import { Album } from '../album/Album';
+import { type } from 'os';
 
 @Entity()
 export class Track {
   @PrimaryColumn()
-  id: number;
+  id: string;
 
   @ManyToOne((type) => Album, (album) => album.tracks)
   album_id: string;
@@ -23,7 +25,7 @@ export class Track {
   @Column()
   duration: number;
 
-  @Column('int64')
+  @Column('int')
   times_played: number;
 
   @ManyToOne((type) => Artist, (artist) => artist.tracks)
@@ -32,6 +34,6 @@ export class Track {
   @ManyToOne((type) => Album, (album) => album.tracks)
   album: Album;
 
-  @Column()
+  @OneToOne((type) => Track)
   self: string;
 }

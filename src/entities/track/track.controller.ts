@@ -1,4 +1,5 @@
 import Koa from 'koa';
+import { getConnection } from 'typeorm';
 import Router, { RouterContext } from '@koa/router';
 
 // Ver documentación https://developer.mozilla.org/en-US/docs/Web/API/Request/Request
@@ -10,8 +11,8 @@ const routerOpts: Router.RouterOptions = {
 
 const trackRouter: Router = new Router(routerOpts);
 
-trackRouter.get('/', async (ctx: RouterContext) => {
-  ctx.body = 'GET ALL';
+trackRouter.get('', async (ctx: RouterContext) => {
+  ctx.body = 'GET ALL TRACKS';
   // Do something
 });
 
@@ -23,10 +24,12 @@ trackRouter.get(
   }
 );
 
-trackRouter.post('/', async (ctx: RouterContext) => {
-  ctx.body = 'POST';
-  // Do something
-});
+trackRouter.put(
+  '/:track_id/play',
+  async (ctx: RouterContext) => {
+    // Play the song with id track_id
+  }
+);
 
 trackRouter.delete(
   '/:track_id',

@@ -1,4 +1,6 @@
-# Awesome Project Build with TypeORM
+# DDC Records API
+
+_developed by Jorge Harcha_
 
 Steps to run this project:
 
