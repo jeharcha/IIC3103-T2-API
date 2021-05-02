@@ -90,6 +90,7 @@ albumRouter.post(
         var track = trackManager.create(Track, {
           id: albumId,
           album_id: albumId,
+          artist_id: artistId,
           name: trackName,
           duration: trackDuration,
           times_played: 0,
@@ -115,16 +116,6 @@ albumRouter.post(
   }
 );
 
-albumRouter.get('', async (ctx: RouterContext) => {
-  ctx.body = { name: 'jajaja\n Muy de pana' };
-  // Do something
-  // POST methods
-  // console.log('----------------');
-  // console.log('my_url', ctx.URL);
-  // console.log('My head', ctx.header);
-  // console.log('My_Body', ctx.body);
-});
-
 albumRouter.get(
   '/:album_id/tracks',
   async (ctx: RouterContext) => {
@@ -136,10 +127,36 @@ albumRouter.get(
 albumRouter.get(
   '/:album_id',
   async (ctx: RouterContext) => {
-    ctx.body = 'GET SINGLE';
-    //
+    const albumId = ctx.params.album_id;
+    const manager = getManager();
+    const album = await manager.findOne(Album, {
+      id: albumId
+    });
+    if (album === undefined) {
+      ctx.message = 'álbum no encontrado';
+      console.log(
+        'El álbun con este ID (' + albumId + ') no existe.'
+      );
+      ctx.status = 404;
+    } else {
+      ctx.body = album;
+      ctx.status = 200;
+      console.log('Álbum:', album.name, '\nId:', album.id);
+    }
   }
 );
+
+albumRouter.get('/', async (ctx: RouterContext) => {
+  // console.log('my_url', ctx.URL);
+  // console.log('My head', ctx.header);
+  // console.log('My_Body', ctx.body);
+  console.log('Se entregan todos los Albums.');
+  const manager = getManager();
+  const albums = await manager.find(Album);
+  ctx.body = albums;
+  ctx.status = 200;
+  // Do something
+});
 
 albumRouter.put(
   '/:album_id/tracks/play',

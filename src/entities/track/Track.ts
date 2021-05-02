@@ -20,6 +20,9 @@ export class Track {
   album_id: string;
 
   @Column('text')
+  artist_id: string;
+
+  @Column('text')
   name: string;
 
   @Column()

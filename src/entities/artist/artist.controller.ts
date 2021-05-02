@@ -1,13 +1,16 @@
 import Koa from 'koa';
-import { getConnection, getManager } from 'typeorm';
+import {
+  getConnection,
+  getManager,
+  getRepository
+} from 'typeorm';
+import connection from '../../database/connection';
 import Router, { RouterContext } from '@koa/router';
 import { Artist } from './Artist';
 import albumRouter from '../album/album.controller';
 import { Album } from '../album/Album';
+import { Track } from '../track/Track';
 import { PassThrough } from 'stream';
-
-// Ver documentación https://developer.mozilla.org/en-US/docs/Web/API/Request/Request
-// Ver documentación https://developer.mozilla.org/en-US/docs/Web/API/Request
 
 const routerOpts: Router.RouterOptions = {
   prefix: '/artists'
@@ -15,40 +18,103 @@ const routerOpts: Router.RouterOptions = {
 
 const artistRouter: Router = new Router(routerOpts);
 
-artistRouter.get('/', async (ctx: RouterContext) => {
-  ctx.body = 'GET ALL';
-  console.log('Gracias haz y mati');
-  // Do something
-});
-
 artistRouter.get(
   '/:artist_id/albums',
   async (ctx: RouterContext) => {
-    ctx.body = 'GET SINGLE';
-    const { artist_id } = ctx.params;
-    ctx.status = 200;
-    // Se reservar el 'return ctx.throw(404, "Not Found")' para errores.
+    // Obtiene todos los album de un artista en particular
+    const artistId = ctx.params.artist_id;
+    const manager = getManager();
+    const albums = await manager.find(Album, {
+      artist_id: artistId
+    });
+    if (albums.length === 0) {
+      ctx.message = 'artista no encontrado';
+      console.log(
+        'No se encontraron albumes del artista con ID (' +
+          artistId
+      );
+      ctx.status = 404;
+    } else {
+      ctx.body = albums;
+      ctx.status = 200;
+      console.log(
+        'Albums: \n',
+        albums,
+        '\nArtistId:',
+        artistId
+      );
+    }
   }
+  // Se reservar el 'return ctx.throw(404, "Not Found")' para errores.
 );
 
 artistRouter.get(
   '/:artist_id/tracks',
   async (ctx: RouterContext) => {
-    ctx.body = 'GET SINGLE';
-    const { artist_id } = ctx.params;
-    ctx.status = 200;
-    // Se reservar el 'return ctx.throw(404, "Not Found")' para errores.
+    // Obtiene todas las canciones de un artista en particular
+    const artistId = ctx.params.artist_id;
+    const manager = getManager();
+    const tracks = manager.find(Track, {
+      artist_id: artistId
+    });
+
+    if (tracks === undefined) {
+      ctx.message = 'artista no encontrado';
+      console.log(
+        'No se encontraron albumes del artista con ID (' +
+          artistId
+      );
+      ctx.status = 404;
+    } else {
+      ctx.body = tracks;
+      ctx.status = 200;
+      console.log(tracks);
+      // console.log(
+      //   'Albums: \n',
+      //   albums,
+      //   '\nArtistId:',
+      //   artistId
+      // );
+    }
   }
 );
 
+// 2)
 // GET /artists/<artist_id>/albums
 artistRouter.get(
   '/:artist_id',
   async (ctx: RouterContext) => {
-    ctx.body = 'GET SINGLE';
-    // Do something
+    const artistId = ctx.params.artist_id;
+    console.log('Se entregan el artista con ID:', artistId);
+    const manager = getManager();
+    const artist = await manager.findOne(Artist, {
+      id: artistId
+    });
+    if (artist === undefined) {
+      ctx.message = 'artista no encontrado';
+      ctx.status = 404;
+    } else {
+      ctx.body = artist;
+      ctx.status = 200;
+      console.log(
+        'Artista:',
+        artist.name,
+        '\nId:',
+        artist.id
+      );
+    }
   }
 );
+
+// 1)
+artistRouter.get('/', async (ctx: RouterContext) => {
+  console.log('Se entregan todos los artistas.');
+  const manager = getManager();
+  const artistas = await manager.find(Artist);
+  ctx.body = artistas;
+  ctx.status = 200;
+  // Do something
+});
 
 artistRouter.post(
   '/:artistId/albums',
