@@ -22,9 +22,9 @@ artistRouter.get(
   '/:artist_id/albums',
   async (ctx: RouterContext) => {
     // Obtiene todos los album de un artista en particular
-    const artistId = ctx.params.artist_id;
-    const manager = getManager();
-    const albums = await manager.find(Album, {
+    var artistId = ctx.params.artist_id;
+    var manager = getManager();
+    var albums = await manager.find(Album, {
       artist_id: artistId
     });
     if (albums.length === 0) {
@@ -52,9 +52,9 @@ artistRouter.get(
   '/:artist_id/tracks',
   async (ctx: RouterContext) => {
     // Obtiene todas las canciones de un artista en particular
-    const artistId = ctx.params.artist_id;
-    const manager = getManager();
-    const tracks = manager.find(Track, {
+    var artistId = ctx.params.artist_id;
+    var manager = getManager();
+    var tracks = await manager.find(Track, {
       artist_id: artistId
     });
 
@@ -84,10 +84,10 @@ artistRouter.get(
 artistRouter.get(
   '/:artist_id',
   async (ctx: RouterContext) => {
-    const artistId = ctx.params.artist_id;
+    var artistId = ctx.params.artist_id;
     console.log('Se entregan el artista con ID:', artistId);
-    const manager = getManager();
-    const artist = await manager.findOne(Artist, {
+    var manager = getManager();
+    var artist = await manager.findOne(Artist, {
       id: artistId
     });
     if (artist === undefined) {
@@ -109,8 +109,8 @@ artistRouter.get(
 // 1)
 artistRouter.get('/', async (ctx: RouterContext) => {
   console.log('Se entregan todos los artistas.');
-  const manager = getManager();
-  const artistas = await manager.find(Artist);
+  var manager = getManager();
+  var artistas = await manager.find(Artist);
   ctx.body = artistas;
   ctx.status = 200;
   // Do something
@@ -138,7 +138,7 @@ artistRouter.post(
     } else {
       //El artista si existe.
       // Variable definitions
-      var albumName = ctx.request.body.name;
+      const albumName = ctx.request.body.name;
       var albumGenre = ctx.request.body.genre;
       var albumIdToEncode = albumName + ':' + artistId;
       var btoa = require('btoa');
@@ -153,16 +153,16 @@ artistRouter.post(
         'Artist name: ' +
           artist.name +
           '\nArtistId: ' +
-          artistId
+          artistId +
+          '\nAlbum Name: ' +
+          albumName
       );
       // Busca por el album en particular para ver si ya existe.
       var album = await albumManager.findOne(Album, {
         id: albumId
       });
-
       // Debiese revisar acá el Body del request y validar que todos  los
       // campos y sus repespectivos tipos sean correctos.
-
       if (album !== undefined) {
         console.log(
           'The album with the given id already exists, so it cannot be created.'
@@ -228,8 +228,8 @@ artistRouter.post('/', async (ctx: RouterContext) => {
     hostDB + '/artists/' + artistId + '/tracks';
   var artistSelfURL = hostDB + '/artists/' + artistId;
 
-  const artistManager = getManager(); // you can also get it via getConnection().manager
-  const artist = artistManager.create(Artist, {
+  var artistManager = getManager(); // you can also get it via getConnection().manager
+  var artist = artistManager.create(Artist, {
     id: artistId,
     name: artist_name,
     age: artist_age,
@@ -262,6 +262,33 @@ artistRouter.post('/', async (ctx: RouterContext) => {
 artistRouter.put(
   '/:artist_id/albums/play',
   async (ctx: RouterContext) => {
+    var artistId = ctx.params.artist_id;
+    var manager = getManager();
+    // var track = manager.findOne(Track, {id: trackId});
+    var album = manager.findOne(Artist, { id: artistId });
+    if (album === undefined) {
+      ctx.status = 404;
+      ctx.message = 'Artista no encontrado';
+    } else {
+      await manager.increment(
+        Track,
+        { artist_id: artistId },
+        'times_played',
+        1
+      );
+      // manager.save(Track);
+      var tracks = await manager.find(Track, {
+        id: artistId
+      });
+      ctx.message =
+        'todas las canciones del artista fueron reproducidas';
+      console.log(
+        tracks.length,
+        'canciones fueron reporducidas'
+      );
+      ctx.status = 200;
+    }
+
     // Play al the song of every album of the artist with id artist_id
   }
 );
@@ -269,7 +296,35 @@ artistRouter.put(
 artistRouter.delete(
   '/:artist_id',
   async (ctx: RouterContext) => {
-    ctx.body = 'DELETE';
+    // Play every song of the album with id album_id
+    var artistId = ctx.params.artist_id;
+    var manager = getManager();
+    // var track = manager.findOne(Track, {id: trackId});
+    var artist = await manager.findOne(Artist, {
+      id: artistId
+    });
+    if (artist === undefined) {
+      console.log(
+        'El Artista con este ID (' +
+          artistId +
+          ') no existe.'
+      );
+      ctx.status = 404;
+      ctx.message = 'artist inexistente';
+    } else {
+      manager.delete(Artist, { id: artistId });
+      manager.delete(Album, { artist_id: artistId });
+      manager.delete(Track, { artist_id: artistId });
+      ctx.status = 204;
+      ctx.message = 'artista eliminado';
+      console.log(
+        "Artista eliminado: \n  '" +
+          artist.name +
+          "' \nID: " +
+          artist.id
+      );
+    }
+
     // Do something
   }
 );
