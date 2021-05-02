@@ -12,10 +12,10 @@ module.exports = {
   },
   entities: [
     './src/entities/artist/Artist.ts',
-    './src/entities/artist/Artist.js',
+    './build/src/entities/artist/Artist.js',
     './src/entities/album/Album.ts',
-    './src/entities/album/Album.js',
+    './build/src/entities/album/Album.js',
     './src/entities/track/Track.ts',
-    './src/entities/track/Track.js'
+    './build/src/entities/track/Track.js'
   ]
 };

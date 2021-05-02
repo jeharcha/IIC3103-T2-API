@@ -20,6 +20,15 @@ export class Artist {
   @Column('int')
   age: number;
 
+  @Column('text')
+  albums_url: string;
+
+  @Column('text')
+  tracks_url: string;
+
+  @Column('text')
+  self_url: string;
+
   @OneToMany((type) => Album, (album) => album.artist)
   albums: Album[];
 

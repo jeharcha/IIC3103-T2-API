@@ -16,7 +16,7 @@ export class Track {
   @PrimaryColumn()
   id: string;
 
-  @ManyToOne((type) => Album, (album) => album.tracks)
+  @Column('text')
   album_id: string;
 
   @Column('text')
@@ -27,6 +27,15 @@ export class Track {
 
   @Column('int')
   times_played: number;
+
+  @Column('text')
+  artist_url: string;
+
+  @Column('text')
+  album_url: string;
+
+  @Column('text')
+  self_url: string;
 
   @ManyToOne((type) => Artist, (artist) => artist.tracks)
   artist: Artist;
