@@ -25,7 +25,7 @@ export class Track {
   @Column('text')
   name: string;
 
-  @Column()
+  @Column('float')
   duration: number;
 
   @Column('int')
