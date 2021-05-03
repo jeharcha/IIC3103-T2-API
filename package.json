@@ -25,6 +25,7 @@
   "scripts": {
     "start": "ts-node build/src/index.js",
     "dev": "nodemon src/index.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "postinstall": "tsc"
   }
 }
