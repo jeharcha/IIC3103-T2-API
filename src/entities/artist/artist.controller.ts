@@ -170,10 +170,10 @@ artistRouter.post(
         var btoa = require('btoa');
         var albumId = btoa(albumIdToEncode).substr(0, 22);
         var hostDB = process.env.URL;
-        var artistURL = hostDB + '/artists/' + artistId;
+        var artistURL = hostDB + 'artists/' + artistId;
         var albumTracksURL =
-          hostDB + '/albums/' + albumId + '/tracks';
-        var albumSelfURL = hostDB + '/albums/' + albumId;
+          hostDB + 'albums/' + albumId + '/tracks';
+        var albumSelfURL = hostDB + 'albums/' + albumId;
 
         console.log(
           'Artist name: ' +
@@ -265,10 +265,10 @@ artistRouter.post('/', async (ctx: RouterContext) => {
     if (artist === undefined) {
       var hostDB = process.env.URL;
       var artistAlbumsURL =
-        hostDB + '/artists/' + artistId + '/albums';
+        hostDB + 'artists/' + artistId + '/albums';
       var artistTracksURL =
-        hostDB + '/artists/' + artistId + '/tracks';
-      var artistSelfURL = hostDB + '/artists/' + artistId;
+        hostDB + 'artists/' + artistId + '/tracks';
+      var artistSelfURL = hostDB + 'artists/' + artistId;
       var artist = artistManager.create(Artist, {
         id: artistId,
         name: artist_name,

@@ -93,9 +93,9 @@ albumRouter.post(
         );
         console.log('Artist name:', trackArtist.name);
         var trackArtistURL =
-          hostDB + '/artists/' + trackArtist.id;
-        var trackAlbumURL = hostDB + '/albums/' + albumId;
-        var trackSelfURL = hostDB + '/tracks/' + trackId;
+          hostDB + 'artists/' + trackArtist.id;
+        var trackAlbumURL = hostDB + 'albums/' + albumId;
+        var trackSelfURL = hostDB + 'tracks/' + trackId;
         // Ahora debemos validar que esta canción en particular no existe
         var track = await trackManager.findOne(Track, {
           id: trackId
