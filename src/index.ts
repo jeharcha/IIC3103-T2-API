@@ -3,7 +3,7 @@ import { app } from './app';
 import connection from './database/connection';
 // import databaseConnection from './database/connection';
 
-const PORT = Number(process.env.PORT) || 3001;
+const PORT = Number(process.env.PORT);
 
 // databaseConnection
 //   .then(() => app.listen(PORT))
