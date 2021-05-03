@@ -115,8 +115,8 @@ albumRouter.post(
           });
           trackManager.save(track);
           ctx.body = {
-            id: albumId,
-            album_id: albumId,
+            // id: albumId,
+            // album_id: albumId,
             name: trackName,
             duration: trackDuration,
             times_played: 0,
