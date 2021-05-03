@@ -25,20 +25,11 @@ export class Album {
   genre: string;
 
   @Column('text')
-  artist_url: string;
+  artist: string;
 
   @Column('text')
-  tracks_url: string;
+  tracks: string;
 
   @Column('text')
-  self_url: string;
-
-  @ManyToOne((type) => Artist, (artist) => artist.albums)
-  artist: Artist;
-
-  @OneToMany((type) => Track, (track) => track.album)
-  tracks: Track[];
-
-  @OneToOne((type) => Album)
   self: string;
 }

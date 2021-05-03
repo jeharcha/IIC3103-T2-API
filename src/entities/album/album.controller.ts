@@ -111,9 +111,9 @@ albumRouter.post(
             name: trackName,
             duration: trackDuration,
             times_played: 0,
-            artist_url: trackArtistURL,
-            album_url: trackAlbumURL,
-            self_url: trackSelfURL
+            artist: trackArtistURL,
+            album: trackAlbumURL,
+            self: trackSelfURL
           });
           trackManager.save(track);
           ctx.body = {
@@ -141,9 +141,9 @@ albumRouter.post(
             name: track.name,
             duration: track.duration,
             times_played: track.times_played,
-            artist: track.artist_url,
-            album: track.album_url,
-            self: track.self_url
+            artist: track.artist,
+            album: track.album,
+            self: track.self
           };
           ctx.status = 409;
           ctx.message = 'canción ya existe';

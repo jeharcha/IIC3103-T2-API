@@ -200,9 +200,9 @@ artistRouter.post(
             artist_id: album.artist_id,
             name: album.name,
             genre: album.genre,
-            artist: album.artist_url,
-            tracks: album.tracks_url,
-            self: album.self_url
+            artist: album.artist,
+            tracks: album.tracks,
+            self: album.self
           };
           ctx.status = 409;
           ctx.message = 'álbum ya existe';
@@ -213,9 +213,9 @@ artistRouter.post(
             artist_id: artistId,
             name: albumName,
             genre: albumGenre,
-            artist_url: artistURL,
-            tracks_url: albumTracksURL,
-            self_url: albumSelfURL
+            artist: artistURL,
+            tracks: albumTracksURL,
+            self: albumSelfURL
           });
           albumManager.save(album);
           // Response.body setting
@@ -273,9 +273,9 @@ artistRouter.post('/', async (ctx: RouterContext) => {
         id: artistId,
         name: artist_name,
         age: artist_age,
-        albums_url: artistAlbumsURL,
-        tracks_url: artistTracksURL,
-        self_url: artistSelfURL
+        albums: artistAlbumsURL,
+        tracks: artistTracksURL,
+        self: artistSelfURL
       });
       artistManager.save(artist);
       console.log(
@@ -308,9 +308,9 @@ artistRouter.post('/', async (ctx: RouterContext) => {
         id: artist.id,
         name: artist.name,
         age: artist.age,
-        albums: artist.albums_url,
-        tracks: artist.tracks_url,
-        self: artist.self_url
+        albums: artist.albums,
+        tracks: artist.tracks,
+        self: artist.self
       };
     }
   } else {

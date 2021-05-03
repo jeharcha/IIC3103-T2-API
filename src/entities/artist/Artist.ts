@@ -21,20 +21,11 @@ export class Artist {
   age: number;
 
   @Column('text')
-  albums_url: string;
+  albums: string;
 
   @Column('text')
-  tracks_url: string;
+  tracks: string;
 
   @Column('text')
-  self_url: string;
-
-  @OneToMany((type) => Album, (album) => album.artist)
-  albums: Album[];
-
-  @OneToMany((type) => Track, (track) => track.artist)
-  tracks: Track[];
-
-  @OneToOne((type) => Artist)
   self: string;
 }

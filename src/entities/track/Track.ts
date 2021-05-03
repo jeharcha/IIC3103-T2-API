@@ -32,20 +32,11 @@ export class Track {
   times_played: number;
 
   @Column('text')
-  artist_url: string;
+  artist: string;
 
   @Column('text')
-  album_url: string;
+  album: string;
 
   @Column('text')
-  self_url: string;
-
-  @ManyToOne((type) => Artist, (artist) => artist.tracks)
-  artist: Artist;
-
-  @ManyToOne((type) => Album, (album) => album.tracks)
-  album: Album;
-
-  @OneToOne((type) => Track)
   self: string;
 }
