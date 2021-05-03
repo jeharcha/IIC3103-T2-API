@@ -48,25 +48,34 @@ artistRouter.get(
     // Obtiene todos los album de un artista en particular
     var artistId = ctx.params.artist_id;
     var manager = getManager();
-    var albums = await manager.find(Album, {
-      artist_id: artistId
+    var artist = await manager.findOne(Artist, {
+      id: artistId
     });
-    if (albums.length === 0) {
-      ctx.message = 'artista no encontrado';
-      console.log(
-        'No se encontraron albumes del artista con ID (' +
-          artistId
-      );
+    if (artist === undefined) {
+      // no existe el artiste,
       ctx.status = 404;
+      ctx.message = 'artista no encontrado';
     } else {
-      ctx.body = albums;
-      ctx.status = 200;
-      console.log(
-        'Albums: \n',
-        albums,
-        '\nArtistId:',
-        artistId
-      );
+      var albums = await manager.find(Album, {
+        artist_id: artistId
+      });
+      if (albums.length === 0) {
+        ctx.message = 'artista no encontrado';
+        console.log(
+          'No se encontraron albumes del artista con ID (' +
+            artistId
+        );
+        ctx.status = 404;
+      } else {
+        ctx.body = albums;
+        ctx.status = 200;
+        console.log(
+          'Albums: \n',
+          albums,
+          '\nArtistId:',
+          artistId
+        );
+      }
     }
   }
   // Se reservar el 'return ctx.throw(404, "Not Found")' para errores.
@@ -78,24 +87,33 @@ artistRouter.get(
     // Obtiene todas las canciones de un artista en particular
     var artistId = ctx.params.artist_id;
     var manager = getManager();
-    var tracks = await manager.find(Track, {
-      artist_id: artistId
+    var artist = await manager.findOne(Artist, {
+      id: artistId
     });
-
-    if (tracks === undefined) {
-      ctx.message = 'artista no encontrado';
-      console.log(
-        'No se encontraron albumes del artista con ID (' +
-          artistId
-      );
+    if (artist === undefined) {
+      // no existe el artiste,
       ctx.status = 404;
+      ctx.message = 'artista no encontrado';
     } else {
-      tracks.forEach(function (v) {
-        delete v.artist_id;
+      var tracks = await manager.find(Track, {
+        artist_id: artistId
       });
-      ctx.body = tracks;
-      ctx.status = 200;
-      console.log(tracks);
+
+      if (tracks === undefined) {
+        ctx.message = 'artista no encontrado';
+        console.log(
+          'No se encontraron albumes del artista con ID (' +
+            artistId
+        );
+        ctx.status = 404;
+      } else {
+        tracks.forEach(function (v) {
+          delete v.artist_id;
+        });
+        ctx.body = tracks;
+        ctx.status = 200;
+        console.log(tracks);
+      }
     }
   }
 );
