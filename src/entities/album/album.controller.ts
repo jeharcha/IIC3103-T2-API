@@ -100,6 +100,8 @@ albumRouter.post(
         var track = await trackManager.findOne(Track, {
           id: trackId
         });
+        console.log('track:', track);
+
         if (track === undefined) {
           // This track does not exists so it can be created
           var track = trackManager.create(Track, {
@@ -115,7 +117,7 @@ albumRouter.post(
           });
           trackManager.save(track);
           ctx.body = {
-            id: albumId,
+            id: trackId,
             album_id: albumId,
             name: trackName,
             duration: trackDuration,
