@@ -15,14 +15,6 @@ const routerOpts: Router.RouterOptions = {
 
 const trackRouter: Router = new Router(routerOpts);
 
-trackRouter.get('/', async (ctx: RouterContext) => {
-  console.log('Se entregan todos las tracks.');
-  var manager = getManager();
-  var tracks = await manager.find(Track);
-  ctx.body = tracks;
-  ctx.status = 200;
-});
-
 trackRouter.get(
   '/:track_id',
   async (ctx: RouterContext) => {
@@ -40,12 +32,35 @@ trackRouter.get(
       );
       ctx.status = 404;
     } else {
+      delete track.artist_id;
       ctx.body = track;
       ctx.status = 200;
-      console.log('Track:', track.name, '\nId:', track.id);
+      var trackAgain = await manager.findOne(Track, {
+        id: trackId
+      });
+      var trackIdAgain = trackAgain.artist_id;
+      console.log(
+        'Track:',
+        track.name,
+        '\nId:',
+        track.id,
+        '\nArtistId:',
+        trackIdAgain
+      );
     }
   }
 );
+
+trackRouter.get('/', async (ctx: RouterContext) => {
+  console.log('Se entregan todos las tracks.');
+  var manager = getManager();
+  var tracks = await manager.find(Track);
+  tracks.forEach(function (v) {
+    delete v.artist_id;
+  });
+  ctx.body = tracks;
+  ctx.status = 200;
+});
 
 trackRouter.put(
   '/:track_id/play',

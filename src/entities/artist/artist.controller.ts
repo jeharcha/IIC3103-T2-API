@@ -18,6 +18,30 @@ const routerOpts: Router.RouterOptions = {
 
 const artistRouter: Router = new Router(routerOpts);
 
+function equals(array1, array2) {
+  // code to be executed
+  // if the other array is a falsy value, return
+  if (!array2) return false;
+
+  // compare lengths - can save a lot of time
+  if (array1.length != array2.length) return false;
+
+  for (var i = 0, l = array1.length; i < l; i++) {
+    // Check if we have nested arrays
+    if (
+      array1[i] instanceof Array &&
+      array2[i] instanceof Array
+    ) {
+      // recurse into the nested arrays
+      if (equals(!array1[i], array2[i])) return false;
+    } else if (array1[i] != array2[i]) {
+      // Warning - two different object instances will never be equal: {x:20} != {x:20}
+      return false;
+    }
+  }
+  return true;
+}
+
 artistRouter.get(
   '/:artist_id/albums',
   async (ctx: RouterContext) => {
@@ -66,15 +90,12 @@ artistRouter.get(
       );
       ctx.status = 404;
     } else {
+      tracks.forEach(function (v) {
+        delete v.artist_id;
+      });
       ctx.body = tracks;
       ctx.status = 200;
       console.log(tracks);
-      // console.log(
-      //   'Albums: \n',
-      //   albums,
-      //   '\nArtistId:',
-      //   artistId
-      // );
     }
   }
 );
@@ -132,131 +153,175 @@ artistRouter.post(
     });
     if (artist === undefined) {
       //No se pudo crear este album porque no se encontró el artista padre
-      //Retornar error 422 (Unprocessable Entity)
       ctx.status = 422;
       ctx.message = 'artista no existe';
     } else {
       //El artista si existe.
-      // Variable definitions
-      const albumName = ctx.request.body.name;
-      var albumGenre = ctx.request.body.genre;
-      var albumIdToEncode = albumName + ':' + artistId;
-      var btoa = require('btoa');
-      var albumId = btoa(albumIdToEncode).substr(0, 22);
-      var hostDB = process.env.URL;
-      var artistURL = hostDB + '/artists/' + artistId;
-      var albumTracksURL =
-        hostDB + '/albums/' + albumId + '/tracks';
-      var albumSelfURL = hostDB + '/albums/' + albumId;
+      //validaciones del body correcto para crear un Album(name, genre).
+      console.log('Request Body:', ctx.request.body);
+      var bodyKeysArray = Object.keys(ctx.request.body);
+      var expectedKeys = ['name', 'genre'];
+      var rightKeys = equals(expectedKeys, bodyKeysArray);
+      if (rightKeys) {
+        // Variable definitions
+        const albumName = ctx.request.body.name;
+        var albumGenre = ctx.request.body.genre;
+        var albumIdToEncode = albumName + ':' + artistId;
+        var btoa = require('btoa');
+        var albumId = btoa(albumIdToEncode).substr(0, 22);
+        var hostDB = process.env.URL;
+        var artistURL = hostDB + '/artists/' + artistId;
+        var albumTracksURL =
+          hostDB + '/albums/' + albumId + '/tracks';
+        var albumSelfURL = hostDB + '/albums/' + albumId;
 
-      console.log(
-        'Artist name: ' +
-          artist.name +
-          '\nArtistId: ' +
-          artistId +
-          '\nAlbum Name: ' +
-          albumName
-      );
-      // Busca por el album en particular para ver si ya existe.
-      var album = await albumManager.findOne(Album, {
-        id: albumId
-      });
-      // Debiese revisar acá el Body del request y validar que todos  los
-      // campos y sus repespectivos tipos sean correctos.
-      if (album !== undefined) {
         console.log(
-          'The album with the given id already exists, so it cannot be created.'
+          'Artist name: ' +
+            artist.name +
+            '\nArtistId: ' +
+            artistId +
+            '\nAlbum Name: ' +
+            albumName
         );
-        // The album with the given id already exists, so it cannot be created.
-        // So the already existing album is returned into the response's body
-        ctx.body = {
-          id: album.id,
-          artist_id: album.artist_id,
-          name: album.name,
-          genre: album.genre,
-          artist: album.artist_url,
-          tracks: album.tracks_url,
-          self: album.self_url
-        };
-        ctx.status = 409;
-        ctx.message = 'álbum ya existe';
-      } else if (album === undefined) {
-        // The album with the given id, does not exist, then it can be created
-        var album = albumManager.create(Album, {
-          id: albumId,
-          artist_id: artistId,
-          name: albumName,
-          genre: albumGenre,
-          artist_url: artistURL,
-          tracks_url: albumTracksURL,
-          self_url: albumSelfURL
+        // Busca por el album en particular para ver si ya existe.
+        var album = await albumManager.findOne(Album, {
+          id: albumId
         });
-        albumManager.save(album);
-        // Response.body setting
-        ctx.body = {
-          id: albumId,
-          artist_id: artistId,
-          name: albumName,
-          genre: albumGenre,
-          artist: artistURL,
-          tracks: albumTracksURL,
-          self: albumSelfURL
-        };
-        (ctx.status = 201), (ctx.message = 'album creado');
+        // Debiese revisar acá el Body del request y validar que todos  los
+        // campos y sus repespectivos tipos sean correctos.
+        if (album !== undefined) {
+          console.log(
+            'The album with the given id already exists, so it cannot be created.'
+          );
+          // The album with the given id already exists, so it cannot be created.
+          // So the already existing album is returned into the response's body
+          ctx.body = {
+            id: album.id,
+            artist_id: album.artist_id,
+            name: album.name,
+            genre: album.genre,
+            artist: album.artist_url,
+            tracks: album.tracks_url,
+            self: album.self_url
+          };
+          ctx.status = 409;
+          ctx.message = 'álbum ya existe';
+        } else if (album === undefined) {
+          // The album with the given id, does not exist, then it can be created
+          var album = albumManager.create(Album, {
+            id: albumId,
+            artist_id: artistId,
+            name: albumName,
+            genre: albumGenre,
+            artist_url: artistURL,
+            tracks_url: albumTracksURL,
+            self_url: albumSelfURL
+          });
+          albumManager.save(album);
+          // Response.body setting
+          ctx.body = {
+            id: albumId,
+            artist_id: artistId,
+            name: albumName,
+            genre: albumGenre,
+            artist: artistURL,
+            tracks: albumTracksURL,
+            self: albumSelfURL
+          };
+          (ctx.status = 201),
+            (ctx.message = 'album creado');
+        }
+      } else {
+        console.log('ERROR 400: Bad Request');
+        console.log(
+          'Los campos correctos son: \n',
+          expectedKeys
+        );
+        ctx.status = 400;
+        ctx.message = 'Bad Request';
       }
     }
-    // } catch (e) {
-    //   ctx.status = 400;
-    //   ctx.message = 'inválido';
-    // } finally {
-    //   }
   }
 );
 
 artistRouter.post('/', async (ctx: RouterContext) => {
   // Crear un Artist
-  console.log('Rout:' + routerOpts.prefix + '/');
-  console.log('Artist is about to be created ...');
-  var artist_name = ctx.request.body.name;
-  var artist_age = ctx.request.body.age;
-  var btoa = require('btoa');
-  var artistId = btoa(artist_name).substr(0, 22);
-  var hostDB = process.env.URL;
-  var artistAlbumsURL =
-    hostDB + '/artists/' + artistId + '/albums';
-  var artistTracksURL =
-    hostDB + '/artists/' + artistId + '/tracks';
-  var artistSelfURL = hostDB + '/artists/' + artistId;
+  console.log("You've consulted this URL:", ctx.url);
+  console.log('Artist may be created...');
+  console.log('Request Body:', ctx.request.body);
+  var bodyKeysArray = Object.keys(ctx.request.body);
+  var expectedKeys = ['name', 'age'];
+  var rightKeys = equals(expectedKeys, bodyKeysArray);
+  if (rightKeys) {
+    var artist_name = ctx.request.body.name;
+    var artist_age = ctx.request.body.age;
+    var btoa = require('btoa');
+    var artistId = btoa(artist_name).substr(0, 22);
 
-  var artistManager = getManager(); // you can also get it via getConnection().manager
-  var artist = artistManager.create(Artist, {
-    id: artistId,
-    name: artist_name,
-    age: artist_age,
-    albums_url: artistAlbumsURL,
-    tracks_url: artistTracksURL,
-    self_url: artistSelfURL
-  });
-  artistManager.save(artist);
-  console.log(
-    'You have just created a ' +
-      artist.age +
-      ' years old Artist called ' +
-      artist.name +
-      ' with ID ' +
-      artistId
-  );
-
-  ctx.body = {
-    id: artistId,
-    name: artist_name,
-    age: artist_age,
-    albums: artistAlbumsURL,
-    tracks: artistTracksURL,
-    self: artistSelfURL
-  };
-  ctx.status = 201;
-  // Do something
+    var artistManager = getManager();
+    var artist = await artistManager.findOne(Artist, {
+      id: artistId
+    });
+    if (artist === undefined) {
+      var hostDB = process.env.URL;
+      var artistAlbumsURL =
+        hostDB + '/artists/' + artistId + '/albums';
+      var artistTracksURL =
+        hostDB + '/artists/' + artistId + '/tracks';
+      var artistSelfURL = hostDB + '/artists/' + artistId;
+      var artist = artistManager.create(Artist, {
+        id: artistId,
+        name: artist_name,
+        age: artist_age,
+        albums_url: artistAlbumsURL,
+        tracks_url: artistTracksURL,
+        self_url: artistSelfURL
+      });
+      artistManager.save(artist);
+      console.log(
+        'You have just created a ' +
+          artist.age +
+          ' years old Artist called ' +
+          artist.name +
+          ' with ID ' +
+          artistId
+      );
+      ctx.body = {
+        id: artistId,
+        name: artist_name,
+        age: artist_age,
+        albums: artistAlbumsURL,
+        tracks: artistTracksURL,
+        self: artistSelfURL
+      };
+      ctx.status = 201;
+    } else {
+      // this Artist Already exists, so it cannot be created
+      console.log(
+        'ERROR 409: This artist (' +
+          artist_name +
+          ') already exists.'
+      );
+      ctx.status = 409;
+      ctx.message = 'artista ya existe';
+      ctx.body = {
+        id: artist.id,
+        name: artist.name,
+        age: artist.age,
+        albums: artist.albums_url,
+        tracks: artist.tracks_url,
+        self: artist.self_url
+      };
+    }
+  } else {
+    console.log('ERROR 400: Bad Request');
+    console.log(
+      'Los campos correctos son: \n',
+      expectedKeys
+    );
+    ctx.status = 400;
+    ctx.message = 'Bad Request';
+  }
 });
 
 artistRouter.put(
@@ -288,7 +353,6 @@ artistRouter.put(
       );
       ctx.status = 200;
     }
-
     // Play al the song of every album of the artist with id artist_id
   }
 );
@@ -323,9 +387,7 @@ artistRouter.delete(
           "' \nID: " +
           artist.id
       );
-    }
-
-    // Do something
+    } // Do something
   }
 );
 
